@@ -85,6 +85,7 @@ namespace User
                             else
                             {
                                 Console.WriteLine("Nemate pristup ovoj funkciji!'n");
+                                Console.WriteLine("Test git");
                             }
                             break;
                         case 2:
