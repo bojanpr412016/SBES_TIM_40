@@ -12,14 +12,14 @@ namespace Common
         public string Naziv { get; set; }
         public DateTime Vreme { get; set;}
         public int Sala { get; set; }
-        public int CenaKarte { get; set; }
+        public double CenaKarte { get; set; }
 
         public Predstava()
         {
 
         }
 
-        public Predstava(int id, string naziv, DateTime vreme, int sala, int cenaKarte)
+        public Predstava(int id, string naziv, DateTime vreme, int sala, double cenaKarte)
         {
             Id = id;
             Naziv = naziv;

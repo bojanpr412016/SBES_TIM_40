@@ -12,15 +12,23 @@ namespace Common
     public interface ITheatreService
     {
         [OperationContract]
-        void dodajPredstavu();
+        void dodajPredstavu(Predstava p);
         [OperationContract]
-        void izmeniPredstavu();
+        void izmeniPredstavu(int u, object x);
         [OperationContract]
         void izmeniPopust();
         [OperationContract]
         void napraviRezervaciju();
         [OperationContract]
         void platiRezervaciju();
+        [OperationContract]
+        void ispisiPredstave();
+        //[OperationContract]
+        //void izmeniVreme();
+        //[OperationContract]
+        //void izmeniSalu();
+        //[OperationContract]
+        //void izmeniCenuKarte();
 
     }
 }

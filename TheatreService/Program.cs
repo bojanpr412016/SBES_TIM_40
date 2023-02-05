@@ -19,8 +19,6 @@ namespace TheatreService
         static void Main(string[] args)
         {
 
-            //DBAccess db = new DBAccess();
-
             /// srvCertCN.SubjectName should be set to the service's username. .NET WindowsIdentity class provides information about Windows user running the given process
             string srvCertCN = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
 
@@ -41,8 +39,6 @@ namespace TheatreService
             ///Set appropriate service's certificate on the host. Use CertManager class to obtain the certificate based on the "srvCertCN"
             host.Credentials.ServiceCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
 
-
-
             try
             {
                 host.Open();
@@ -60,22 +56,5 @@ namespace TheatreService
             }
         }
 
-        /*static SQLiteConnection CreateConnection()
-        {
-
-            SQLiteConnection sqlite_conn;
-            // Create a new database connection:
-            sqlite_conn = new SQLiteConnection("Data Source=DataBase.db; Version = 3; New = True; Compress = True; ");
-            // Open the connection:
-            try
-            {
-                sqlite_conn.Open();
-            }
-            catch (Exception ex)
-            {
-                throw new NotImplementedException();
-            }
-            return sqlite_conn;
-        }*/
     }
 }

@@ -10,6 +10,9 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using Manager;
+using System.Data;
+using System.Data.SQLite;
+using TheatreService;
 
 namespace User
 {
@@ -17,6 +20,7 @@ namespace User
         public class User : ChannelFactory<ITheatreService>, ITheatreService, IDisposable
         {
             ITheatreService factory;
+            DBAccess db = new DBAccess();
 
             public User(NetTcpBinding binding, EndpointAddress address)
                 : base(binding, address)
@@ -51,18 +55,16 @@ namespace User
                 this.Close();
             }
 
-            public void dodajPredstavu()
+            public void dodajPredstavu(Predstava p)
             {
                 try
                 {
-                    Debugger.Launch();
-                    factory.dodajPredstavu();
-
+                    factory.dodajPredstavu(p);
+                    Console.WriteLine("Dodao");
                 }
                 catch (Exception e)
                 {
-
-                    Trace.TraceInformation(e.Message);
+                    Console.WriteLine("{0}", e.Message);
                 }
             }
 
@@ -71,9 +73,20 @@ namespace User
                 throw new NotImplementedException();
             }
 
-            public void izmeniPredstavu()
+            public void izmeniPredstavu(int u, object x)
             {
-                throw new NotImplementedException();
+                try
+                {
+                    //Debugger.Launch();
+                    factory.izmeniPredstavu(u,x);
+                    Console.WriteLine("dodao");
+
+                }
+                catch (Exception e)
+                {
+
+                Console.WriteLine("greska {0}", e.Message);
+                }
             }
 
             public void napraviRezervaciju()
@@ -85,7 +98,22 @@ namespace User
             {
                 throw new NotImplementedException();
             }
-        }
 
+     
+            public void ispisiPredstave()
+            {
+            try
+            {
+                factory.ispisiPredstave();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: {0}", e.Message);
+            }
+            }
+
+        }
     }
+
+    
 

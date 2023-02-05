@@ -2,11 +2,16 @@
 using Manager;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using TheatreService;
+using System.Diagnostics;
 
 namespace User
 {
@@ -16,6 +21,7 @@ namespace User
         {
             /// Define the expected service certificate. It is required to establish cmmunication using certificates.
             string srvCertCN = "wcfservice2";
+            DBAccess db = new DBAccess();
 
 
             NetTcpBinding binding = new NetTcpBinding();
@@ -42,6 +48,7 @@ namespace User
                 {
                     /// 1. Communication test
                     //proxy.TestCommunication();
+                    //DBAccess db = new DBAccess();
 
                     Console.WriteLine("Odaberite funkciju:\n");
                     Console.WriteLine("1.Dodaj predstavu\n");
@@ -51,15 +58,16 @@ namespace User
                     Console.WriteLine("5.Plati rezervaciju\n");
 
                     int i = Int32.Parse(Console.ReadLine());
-                    string vreme;
+                    //string vreme;
+                    object t;
 
 
                     switch (i)
                     {
                         case 1:
-                            if (grupa != "Admin")
+                            if (grupa == "Admin")
                             {
-                                /*Predstava p = new Predstava();
+                                Predstava p = new Predstava();
 
                                 //Console.WriteLine("Unesite id predstave:");
                                 //p.Id = Int32.Parse(Console.ReadLine());
@@ -78,9 +86,9 @@ namespace User
                                 //p.Vreme = DateTime.Parse("21/21/21");
 
                                 var v = DateTime.Now.ToString("HH:mm");
-                                p.Vreme = DateTime.Parse(v);*/
+                                p.Vreme = DateTime.Parse(v);
 
-                                proxy1.dodajPredstavu();
+                                proxy.dodajPredstavu(p);
                             }
                             else
                             {
@@ -91,23 +99,67 @@ namespace User
                         case 2:
                             if (grupa == "Admin")
                             {
-                                proxy1.dodajPredstavu();
+                                //proxy.ispisiPredstave();
+                                Console.WriteLine("Izaberite ID predstave koju zelite da izmenite.");
+                                int u = Int32.Parse(Console.ReadLine());
+                                //proxy.izmeniPredstavu(u);
+                                Console.WriteLine("Izaberite polje koje zelite da izmenite:");
+                                Console.WriteLine("1.Vreme odrzavanja predstave\n2.Sala u kojoj se predstava odrzava\n3.Cena karte za odabranu predstavu");
+                                int k = Int32.Parse(Console.ReadLine());
+                                switch (k)
+                                {
+                                    case 1:
+                                        Console.WriteLine("Unesite novo vreme odrzavanja predstave(yyyy/MM/dd-hh");
+                                        DateTime vreme = DateTime.Parse(Console.ReadLine());
+                                        
+                                        proxy.izmeniPredstavu(u, vreme);
+                                        break;
+                                    case 2:
+                                        Console.WriteLine("Unesite novi broj sale:");
+                                        int r = Int32.Parse(Console.ReadLine());
+                                        proxy.izmeniPredstavu(u, r);
+                                        break;
+                                    case 3:
+                                        Console.WriteLine("Unesite novu cenu karte:");
+                                        double d = Double.Parse(Console.ReadLine());
+                                        proxy.izmeniPredstavu(u, d);
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+
+
+                                //Predstava p = new Predstava();
+
+                                //proxy.izmeniPredstavu(p);
                             }
                             else
                             {
                                 Console.WriteLine("Nemate pristup ovoj funkciji!'n");
                             }
                             break;
-
+                        case 3:
+                                if(grupa == "Admin")
+                                {                              
+                                   
+                                }
+                                else
+                                {
+                                    Console.WriteLine("greska");
+                                }
+                                break;
                         default:
                             break;
+                        
                     }
 
-
+                    
                 }
                 Console.ReadLine();
             }
-
+            
+        
         }
     }
     }
