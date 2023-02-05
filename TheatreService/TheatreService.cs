@@ -7,6 +7,7 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using static TheatreService.TheatreService;
@@ -14,55 +15,89 @@ using static TheatreService.TheatreService;
 namespace TheatreService
 {
     public class TheatreService : ITheatreService
-    {        
-            DBAccess db = new DBAccess();
+    {
+        DBAccess db = new DBAccess();
 
-            int idBr;
-            public void dodajPredstavu(Predstava p)
+        int idBr;
+
+        public void dodajKorisnika(Korisnik k)
+        {
+            using (IDbConnection conn = new SQLiteConnection())
             {
-                Console.WriteLine("----------------------------------------------------------------");
-                using (IDbConnection conn = new SQLiteConnection())
+                List<string> korisnici = new List<string>();
+                string insertQuery = "INSERT INTO Korisnici (`Ime`,`StanjeRacuna`) VALUES (@Ime,@StanjeRacuna)";
+                string selectQuery = "SELECT Ime FROM Korisnici";
+
+                SQLiteDataReader reader;
+                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
+
+                comm.Connection.Open();
+                reader = comm.ExecuteReader();
+
+                while (reader.Read())
                 {
-                    //Debugger.Launch();
-                    string insertQuery = "INSERT INTO Predstave (`Naziv`, `Vreme`,`Sala`, `CenaKarte`) VALUES (@Naziv,@Vreme,@Sala,@CenaKarte)";
+                    korisnici.Add(reader.GetString(0));
+                }
+                reader.Close();
+                comm.Connection.Close();
 
-                    SQLiteCommand mySQLiteCommand = new SQLiteCommand(insertQuery, db.mySQLiteConnection);
+                SQLiteCommand mySQLiteCommand = new SQLiteCommand(insertQuery, db.mySQLiteConnection);
 
-                    mySQLiteCommand.Connection.Open();
+                mySQLiteCommand.Connection.Open();
 
-                    mySQLiteCommand.Parameters.AddWithValue("@Naziv", p.Naziv);
-                    mySQLiteCommand.Parameters.AddWithValue("@Vreme", p.Vreme);
-                    mySQLiteCommand.Parameters.AddWithValue("@Sala", p.Sala);
-                    mySQLiteCommand.Parameters.AddWithValue("@CenaKarte", p.CenaKarte);
+                mySQLiteCommand.Parameters.AddWithValue("@Ime", k.Ime);
+                mySQLiteCommand.Parameters.AddWithValue("@StanjeRacuna", k.StanjeRacuna);
 
-                    var fInsertResult = mySQLiteCommand.ExecuteNonQuery();
 
-                    mySQLiteCommand.Connection.Close();
-                                      
-                }          
+                mySQLiteCommand.ExecuteNonQuery();
+
+                mySQLiteCommand.Connection.Close();
+
+
             }
+        }
+
+        public void dodajPredstavu(Predstava p)
+        {
+            Console.WriteLine("----------------------------------------------------------------");
+            using (IDbConnection conn = new SQLiteConnection())
+            {
+                string insertQuery = "INSERT INTO Predstave (`Naziv`, `Vreme`,`Sala`, `CenaKarte`) VALUES (@Naziv,@Vreme,@Sala,@CenaKarte)";
+
+                SQLiteCommand mySQLiteCommand = new SQLiteCommand(insertQuery, db.mySQLiteConnection);
+
+                mySQLiteCommand.Connection.Open();
+
+                mySQLiteCommand.Parameters.AddWithValue("@Naziv", p.Naziv);
+                mySQLiteCommand.Parameters.AddWithValue("@Vreme", p.Vreme);
+                mySQLiteCommand.Parameters.AddWithValue("@Sala", p.Sala);
+                mySQLiteCommand.Parameters.AddWithValue("@CenaKarte", p.CenaKarte);
+
+                var fInsertResult = mySQLiteCommand.ExecuteNonQuery();
+
+                mySQLiteCommand.Connection.Close();
+
+            }
+        }
 
         public void ispisiPredstave()
-        {         
-                using (IDbConnection conn = new SQLiteConnection())
-                {
-                    string selectQuery = "SELECT * FROM Predstave";
-                    SQLiteDataReader reader;
-                    SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
-                    //conn.Open();
+        {
+            using (IDbConnection conn = new SQLiteConnection())
+            {
+                string selectQuery = "SELECT * FROM Predstave";
+                SQLiteDataReader reader;
+                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
 
-                    comm.Connection.Open();
-                    reader = comm.ExecuteReader();
-                    Console.WriteLine($"ID   {reader.GetName(1)} {reader.GetName(2)} {reader.GetName(3)} {reader.GetName(4)}");
-                    while (reader.Read())
-                    {
-                        Console.WriteLine($"{reader.GetInt32(0)} {reader["Naziv"]} {reader.GetDateTime(2).ToString("yyyy/MM/dd")} {reader["Sala"]} {reader["CenaKarte"]}");
-                        //Console.WriteLine("ee");
-                    }
-                //comm.Connection.Close();
-                //SqlDateTime vreme = new SqlDateTime(reader["Vreme"].to);
+                comm.Connection.Open();
+                reader = comm.ExecuteReader();
+                Console.WriteLine($"ID   {reader.GetName(1)} {reader.GetName(2)} {reader.GetName(3)} {reader.GetName(4)}");
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader.GetInt32(0)} {reader["Naziv"]} {reader.GetDateTime(2).ToString("yyyy/MM/dd")} {reader["Sala"]} {reader["CenaKarte"]}");
+                }
+
                 comm.Connection.Close();
-                }           
+            }
         }
 
         public void izmeniCenuKarte()
@@ -71,25 +106,22 @@ namespace TheatreService
         }
 
         public void izmeniPopust()
-            {
-                throw new NotImplementedException();
-            }
+        {
+            throw new NotImplementedException();
+        }
 
         public void izmeniPredstavu(int u, object x)
         {
             using (IDbConnection conn = new SQLiteConnection())
             {
-                Debugger.Launch();
                 string selectQuery = "SELECT * FROM Predstave WHERE Id=" + u;
-                //SQLiteDataReader reader;
-                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
-                //conn.Open();
 
-                Predstava p = new Predstava();
-                comm.Connection.Open();
-                //reader = comm.ExecuteReader();
-                //Console.WriteLine($"ID   {reader.GetName(1)} {reader.GetName(2)} {reader.GetName(3)} {reader.GetName(4)}");
-                using (SQLiteDataReader reader = comm.ExecuteReader())
+                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
+
+
+                //Predstava p = new Predstava();
+
+                /*using (SQLiteDataReader reader = comm.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -98,12 +130,10 @@ namespace TheatreService
                         p.Vreme = reader.GetDateTime(2);
                         p.Sala = reader.GetInt32(3);
                         p.CenaKarte = reader.GetFloat(4);
-                        break; // (if you only want the first item returned)
+                        break; 
                     }
-                }
+                }*/
 
-                //Console.WriteLine("ee");
-                comm.Connection.Close();
                 string updateSala = "UPDATE Predstave SET Sala = @Sala WHERE   Id=" + u;
                 string updateVreme = "UPDATE Predstave SET Vreme = @Vreme WHERE   Id=" + u;
                 string updateCena = "UPDATE Predstave SET CenaKarte = @CenaKarte WHERE   Id=" + u;
@@ -116,7 +146,7 @@ namespace TheatreService
                     comm.ExecuteNonQuery();
                     comm.Connection.Close();
                 }
-                else if(x.GetType() == typeof(double))
+                else if (x.GetType() == typeof(double))
                 {
                     comm.Connection.Open();
                     comm = new SQLiteCommand(updateCena, db.mySQLiteConnection);
@@ -135,33 +165,108 @@ namespace TheatreService
                 else
                     Console.WriteLine("Pogresan format");
 
-               
+
                 comm.Connection.Close();
             }
         }
 
-        public void izmeniSalu()
+        public void napraviRezervaciju(int idP, int brKarata)
         {
-            throw new NotImplementedException();
+            using (IDbConnection conn = new SQLiteConnection())
+            {
+                Rezervacija r = new Rezervacija();
+                string selectQuery = "SELECT Vreme FROM Predstave WHERE Id=" + idP;
+
+                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
+                DateTime vreme = new DateTime();
+
+                SQLiteDataReader reader;
+
+
+                comm.Connection.Open();
+                reader = comm.ExecuteReader();
+                //Console.WriteLine($"ID   {reader.GetName(1)} {reader.GetName(2)} {reader.GetName(3)} {reader.GetName(4)}");
+                while (reader.Read())
+                {
+                    vreme = reader.GetDateTime(0);
+                    Console.WriteLine(vreme);
+                }
+                reader.Close();
+                comm.Connection.Close();
+
+
+
+                string insertQuery = "INSERT INTO Rezervacije (`IdPredstave`,`VremeRezervacije`, `KolicinaKarata`, `Stanje`) VALUES (@IdPredstave,@VremeRezervacije,@KolicinaKarata,@Stanje)";
+                SQLiteCommand mySqliteCommand = new SQLiteCommand(insertQuery, db.mySQLiteConnection);
+
+                mySqliteCommand.Connection.Open();
+                mySqliteCommand.Parameters.AddWithValue("@IdPredstave", idP);
+                mySqliteCommand.Parameters.AddWithValue("@VremeRezervacije", vreme);
+                mySqliteCommand.Parameters.AddWithValue("@KolicinaKarata", brKarata);
+                mySqliteCommand.Parameters.AddWithValue("@Stanje", r.StanjeRezervacije);
+                mySqliteCommand.ExecuteNonQuery();
+                mySqliteCommand.Connection.Close();
+
+            }
         }
 
-        public void izmeniVreme()
+        public void platiRezervaciju(int idRez, string ime)
         {
-            throw new NotImplementedException();
+            using (IDbConnection conn = new SQLiteConnection())
+            {
+                
+                //string ime = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+                int a = 0;
+                int b = 0;
+                
+                string updateStanje = "UPDATE Korisnici SET StanjeRacuna = @StanjeRacuna WHERE Ime=" + ime;
+                string selectQuery = "SELECT IdPredstave,KolicinaKarata FROM Rezervacije WHERE Id=" + idRez;
+
+
+                int cena = 0;
+
+                SQLiteDataReader reader;
+                SQLiteCommand comm = new SQLiteCommand(selectQuery, db.mySQLiteConnection);
+                
+
+                comm.Connection.Open();
+                reader = comm.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    a = reader.GetInt32(0);
+                    b = reader.GetInt32(1);
+                }
+                reader.Close();
+                comm.Connection.Close();
+
+                //Console.WriteLine("{0} , kol{1}", a, b);
+                
+                //string selectQuery2 = "SELECT CenaKarte FROM Predstave WHERE Id=" + a;
+
+                //SQLiteCommand comm1 = new SQLiteCommand(selectQuery2, db.mySQLiteConnection);
+                //comm1.Connection.Open();
+
+                //while (reader.Read())
+                //{
+                //    cena = reader.GetInt32(0);
+                //    Console.WriteLine("{0}", cena);
+                //}
+
+                //reader.Close();
+                //comm1.Connection.Close();
+
+                //comm.Connection.Open();
+
+                //comm.Parameters.AddWithValue("@StanjeRacuna", 0);
+
+
+                //comm.ExecuteNonQuery();
+
+                //comm.Connection.Close();
+
+            }
+
         }
-
-        public void napraviRezervaciju()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void platiRezervaciju()
-            {
-                throw new NotImplementedException();
-            }
-
-
-        
-
     }
 }

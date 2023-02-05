@@ -16,92 +16,108 @@ using TheatreService;
 
 namespace User
 {
- 
-        public class User : ChannelFactory<ITheatreService>, ITheatreService, IDisposable
+
+    public class User : ChannelFactory<ITheatreService>, ITheatreService, IDisposable
+    {
+        ITheatreService factory;
+        DBAccess db = new DBAccess();
+
+        public User(NetTcpBinding binding, EndpointAddress address)
+            : base(binding, address)
         {
-            ITheatreService factory;
-            DBAccess db = new DBAccess();
+            /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
+            string cltCertCN = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
 
-            public User(NetTcpBinding binding, EndpointAddress address)
-                : base(binding, address)
+            this.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.Custom;
+            this.Credentials.ServiceCertificate.Authentication.CustomCertificateValidator = new ClientCertValidator();
+            this.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
+
+            /// Set appropriate client's certificate on the channel. Use CertManager class to obtain the certificate based on the "cltCertCN"
+            this.Credentials.ClientCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
+
+
+
+            factory = this.CreateChannel();
+        }
+        public string nazivKorisnika()
+        {
+            string naziv = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+            return naziv;
+        }
+
+        public void Dispose()
+        {
+            if (factory != null)
             {
-                /// cltCertCN.SubjectName should be set to the client's username. .NET WindowsIdentity class provides information about Windows user running the given process
-                string cltCertCN = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
-
-                this.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.Custom;
-                this.Credentials.ServiceCertificate.Authentication.CustomCertificateValidator = new ClientCertValidator();
-                this.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
-
-                /// Set appropriate client's certificate on the channel. Use CertManager class to obtain the certificate based on the "cltCertCN"
-                this.Credentials.ClientCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
-
-
-
-                factory = this.CreateChannel();
-            }
-            public string nazivKorisnika()
-            {
-                string naziv = Manager.Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
-                return naziv;
-            }
-
-            public void Dispose()
-            {
-                if (factory != null)
-                {
-                    factory = null;
-                }
-
-                this.Close();
+                factory = null;
             }
 
-            public void dodajPredstavu(Predstava p)
+            this.Close();
+        }
+
+        public void dodajPredstavu(Predstava p)
+        {
+            try
             {
-                try
-                {
-                    factory.dodajPredstavu(p);
-                    Console.WriteLine("Dodao");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("{0}", e.Message);
-                }
+                factory.dodajPredstavu(p);
+                Console.WriteLine("Dodao");
             }
-
-            public void izmeniPopust()
+            catch (Exception e)
             {
-                throw new NotImplementedException();
+                Console.WriteLine("{0}", e.Message);
             }
+        }
 
-            public void izmeniPredstavu(int u, object x)
+        public void izmeniPopust()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void izmeniPredstavu(int u, object x)
+        {
+            try
             {
-                try
-                {
-                    //Debugger.Launch();
-                    factory.izmeniPredstavu(u,x);
-                    Console.WriteLine("dodao");
+                //Debugger.Launch();
+                factory.izmeniPredstavu(u, x);
+                Console.WriteLine("dodao");
 
-                }
-                catch (Exception e)
-                {
+            }
+            catch (Exception e)
+            {
 
                 Console.WriteLine("greska {0}", e.Message);
-                }
             }
+        }
 
-            public void napraviRezervaciju()
+        public void napraviRezervaciju(int idP, int brKarata)
+        {
+            try
             {
-                throw new NotImplementedException();
+                Debugger.Launch();
+                factory.napraviRezervaciju(idP, brKarata);
             }
-
-            public void platiRezervaciju()
+            catch (Exception e)
             {
-                throw new NotImplementedException();
+
+                Console.WriteLine("greska {0}", e.Message);
             }
+        }
 
-     
-            public void ispisiPredstave()
+        public void platiRezervaciju(int idRez, string ime)
+        {
+            try
             {
+                factory.platiRezervaciju(idRez, ime);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Greska: {0}", e.Message);
+            }
+        }
+
+
+        public void ispisiPredstave()
+        {
             try
             {
                 factory.ispisiPredstave();
@@ -110,10 +126,21 @@ namespace User
             {
                 Console.WriteLine("Error: {0}", e.Message);
             }
-            }
+        }
 
+        public void dodajKorisnika(Korisnik k)
+        {
+            try
+            {
+                factory.dodajKorisnika(k);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Greska: {0}", e.Message);
+            }
         }
     }
+}
 
-    
+
 

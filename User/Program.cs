@@ -21,7 +21,7 @@ namespace User
         {
             /// Define the expected service certificate. It is required to establish cmmunication using certificates.
             string srvCertCN = "wcfservice2";
-            DBAccess db = new DBAccess();
+            //DBAccess db = new DBAccess();
 
 
             NetTcpBinding binding = new NetTcpBinding();
@@ -46,10 +46,6 @@ namespace User
             {
                 using (User proxy = new User(binding, address))
                 {
-                    /// 1. Communication test
-                    //proxy.TestCommunication();
-                    //DBAccess db = new DBAccess();
-
                     Console.WriteLine("Odaberite funkciju:\n");
                     Console.WriteLine("1.Dodaj predstavu\n");
                     Console.WriteLine("2.Izmeni predstavu\n");
@@ -59,6 +55,7 @@ namespace User
 
                     int i = Int32.Parse(Console.ReadLine());
                     //string vreme;
+                    
                     object t;
 
 
@@ -111,7 +108,7 @@ namespace User
                                     case 1:
                                         Console.WriteLine("Unesite novo vreme odrzavanja predstave(yyyy/MM/dd-hh");
                                         DateTime vreme = DateTime.Parse(Console.ReadLine());
-                                        
+
                                         proxy.izmeniPredstavu(u, vreme);
                                         break;
                                     case 2:
@@ -128,11 +125,6 @@ namespace User
                                         break;
                                 }
 
-
-
-                                //Predstava p = new Predstava();
-
-                                //proxy.izmeniPredstavu(p);
                             }
                             else
                             {
@@ -140,27 +132,54 @@ namespace User
                             }
                             break;
                         case 3:
-                                if(grupa == "Admin")
-                                {                              
-                                   
-                                }
-                                else
-                                {
-                                    Console.WriteLine("greska");
-                                }
-                                break;
+                            if (grupa == "Admin")
+                            {
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("greska");
+                            }
+                            break;
+                        case 4:
+                            if (grupa == "Admin")
+                            {
+                                //Debugger.Launch();
+                                Console.WriteLine("Izaberite ID Predstave za koju zelite da napravite rezervaciju:");
+                                int r = Int32.Parse(Console.ReadLine());
+                                Console.WriteLine("Unesite kolicinu karata:");
+                                int br = Int32.Parse(Console.ReadLine());
+
+                                Korisnik k = new Korisnik();
+                                k.Ime = cltCertCN;
+                                k.Popust = 1000;
+                                k.StanjeRacuna = 10000;
+                                proxy.dodajKorisnika(k);
+
+                                proxy.napraviRezervaciju(r, br);
+                            }
+                            else
+                            {
+                                Console.WriteLine("greska");
+                            }
+                            break;
+                        case 5:
+                            Console.WriteLine("Izaberite ID rezervacije koju zelite da platite:");
+                            int idrez = Int32.Parse(Console.ReadLine());
+                            Debugger.Launch();
+                            proxy.platiRezervaciju(idrez, cltCertCN);
+                            break;
                         default:
                             break;
-                        
+
                     }
 
-                    
+
                 }
-                Console.ReadLine();
             }
-            
-        
+
+
         }
     }
-    }
+}
 

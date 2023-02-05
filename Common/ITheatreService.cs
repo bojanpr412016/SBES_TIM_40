@@ -18,17 +18,13 @@ namespace Common
         [OperationContract]
         void izmeniPopust();
         [OperationContract]
-        void napraviRezervaciju();
+        void napraviRezervaciju(int idP, int brKarata);
         [OperationContract]
-        void platiRezervaciju();
+        void platiRezervaciju(int idRez, string ime);
         [OperationContract]
         void ispisiPredstave();
-        //[OperationContract]
-        //void izmeniVreme();
-        //[OperationContract]
-        //void izmeniSalu();
-        //[OperationContract]
-        //void izmeniCenuKarte();
+        [OperationContract]
+        void dodajKorisnika(Korisnik k);
 
     }
 }
